@@ -30,10 +30,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <script type="module" crossorigin src="/calculater1/assets/index-DYUSkC8Q.js"></script>
+    <script type="module" crossorigin src="/calculater1/assets/index-L60azOO2.js"></script>
     <link rel="stylesheet" crossorigin href="/calculater1/assets/index-CoCEfneu.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <style>
+        .initial-loader {
+          display: flex; justify-content: center; align-items: center; height: 100vh;
+          background: #001233; color: white; font-family: sans-serif;
+        }
+        .spinner {
+          border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #0466c8;
+          border-radius: 50%; width: 40px; height: 40px; animation: loader-spin 1s linear infinite;
+        }
+        @keyframes loader-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      </style>
+      <div class="initial-loader"><div class="spinner"></div></div>
+    </div>
   </body>
 </html>
