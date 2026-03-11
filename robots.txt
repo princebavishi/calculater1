@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://princebavishi.github.io/calculater1/sitemap.xml
