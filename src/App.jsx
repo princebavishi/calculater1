@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import SIPCalculator from './calculators/SIPCalculator';
-import LumpSumCalculator from './calculators/LumpSumCalculator';
-import SWPCalculator from './calculators/SWPCalculator';
-import StepUpSIPCalculator from './calculators/StepUpSIPCalculator';
-import GoalPlannerCalculator from './calculators/GoalPlannerCalculator';
-import CAGRCalculator from './calculators/CAGRCalculator';
+import { useTranslation } from 'react-i18next';
+import { lazy, Suspense } from 'react';
+
+const SIPCalculator = lazy(() => import('./calculators/SIPCalculator'));
+const LumpSumCalculator = lazy(() => import('./calculators/LumpSumCalculator'));
+const SWPCalculator = lazy(() => import('./calculators/SWPCalculator'));
+const StepUpSIPCalculator = lazy(() => import('./calculators/StepUpSIPCalculator'));
+const GoalPlannerCalculator = lazy(() => import('./calculators/GoalPlannerCalculator'));
+const CAGRCalculator = lazy(() => import('./calculators/CAGRCalculator'));
 
 function useTheme() {
   const [theme, setTheme] = useState(() => localStorage.getItem('smartmf-theme') || 'dark');
@@ -15,35 +18,58 @@ function useTheme() {
 }
 
 const TABS = [
-  { id: 'sip', icon: '📈', label: 'SIP', desc: 'Calculate how your monthly SIP grows over time', component: SIPCalculator },
-  { id: 'lumpsum', icon: '💰', label: 'Lump Sum', desc: 'Project the future value of a one-time investment', component: LumpSumCalculator },
-  { id: 'swp', icon: '🏦', label: 'SWP', desc: 'Plan your monthly income from a corpus', component: SWPCalculator },
-  { id: 'stepup', icon: '🚀', label: 'Step-Up SIP', desc: 'See the power of increasing your SIP annually', component: StepUpSIPCalculator },
-  { id: 'goal', icon: '🎯', label: 'Goal Planner', desc: 'Reverse-calculate the SIP needed for any life goal', component: GoalPlannerCalculator },
-  { id: 'cagr', icon: '📊', label: 'CAGR', desc: 'Measure the true annualised growth of any investment', component: CAGRCalculator },
+  { id: 'sip', icon: '📈', labelKey: 'sip', descKey: 'sip_desc', component: SIPCalculator },
+  { id: 'lumpsum', icon: '💰', labelKey: 'lumpsum', descKey: 'lumpsum_desc', component: LumpSumCalculator },
+  { id: 'swp', icon: '🏦', labelKey: 'swp', descKey: 'swp_desc', component: SWPCalculator },
+  { id: 'stepup', icon: '🚀', labelKey: 'stepup', descKey: 'stepup_desc', component: StepUpSIPCalculator },
+  { id: 'goal', icon: '🎯', labelKey: 'goal', descKey: 'goal_desc', component: GoalPlannerCalculator },
+  { id: 'cagr', icon: '📊', labelKey: 'cagr', descKey: 'cagr_desc', component: CAGRCalculator },
+];
+
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'hi', label: 'हिंदी' },
+  { code: 'bn', label: 'বাংলা' },
+  { code: 'mr', label: 'मराठी' },
+  { code: 'te', label: 'తెలుగు' },
+  { code: 'ta', label: 'தமிழ்' },
+  { code: 'gu', label: 'ગુજરાતી' },
 ];
 
 /* ─── Navbar ─────────────────────────────────────────────────── */
 function Navbar({ theme, onToggle }) {
+  const { t, i18n } = useTranslation();
   const isLight = theme === 'light';
+
   return (
     <nav className="navbar">
       <div className="navbar-inner">
         <a href="#" className="navbar-logo">
           <div className="logo-icon">📉</div>
-          <span>SmartMF</span>
-          <span className="navbar-badge">CALCULATORS</span>
+          <span>{t('app.title')}</span>
+          <span className="navbar-badge">{t('app.badge')}</span>
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <a href="#tools" className="navbar-link">Tools</a>
-          <a href="#faq" className="navbar-link">FAQ</a>
-          {/* Theme toggle */}
+          <a href="#tools" className="navbar-link">{t('app.tools')}</a>
+          <a href="#faq" className="navbar-link">{t('app.faq')}</a>
+
+          <select
+            value={i18n.language}
+            onChange={(e) => i18n.changeLanguage(e.target.value)}
+            style={{
+              padding: '0.2rem 0.5rem', fontSize: '0.8rem', width: 'auto',
+              borderRadius: 'var(--r-full)', background: 'var(--bg-glass)',
+              borderColor: 'var(--border)', color: 'var(--text-primary)'
+            }}
+          >
+            {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
+          </select>
+
           <button className="theme-toggle" onClick={onToggle} aria-label="Toggle theme">
             <span>{isLight ? '🌙' : '☀️'}</span>
             <div className={`theme-toggle-track ${isLight ? 'on' : ''}`}>
               <div className={`theme-toggle-thumb ${isLight ? 'on' : 'off'}`} />
             </div>
-            <span style={{ fontSize: '0.78rem' }}>{isLight ? 'Dark' : 'Light'}</span>
           </button>
         </div>
       </div>
@@ -53,37 +79,35 @@ function Navbar({ theme, onToggle }) {
 
 /* ─── Hero ───────────────────────────────────────────────────── */
 function Hero() {
+  const { t } = useTranslation();
   return (
     <div className="hero">
       <div className="hero-grid-lines" aria-hidden="true" />
       <div className="hero-glow" aria-hidden="true" />
 
       <div className="hero-eyebrow">
-        <span>✨</span> Free · No Login · Instant Results
+        <span>✨</span> {t('hero.eyebrow')}
       </div>
 
       <h1>
-        Make{' '}
-        <span className="grad-text">Smarter</span>
-        {' '}Investment
+        {t('hero.title1')}{' '}
+        <span className="grad-text">{t('hero.titleSmarter')}</span>
+        {' '}{t('hero.title2')}
         <br />
-        <span className="grad-text">Decisions</span> Today
+        <span className="grad-text">{t('hero.titleDecisions')}</span> {t('hero.titleToday')}
       </h1>
 
-      <p>
-        6 powerful mutual fund calculators — SIP, Lump Sum, SWP, Step-Up,
-        Goal Planning &amp; CAGR. All in one beautiful, easy-to-use suite.
-      </p>
+      <p>{t('hero.desc')}</p>
 
       <div className="hero-stats">
         {[
-          { value: '6', label: 'Calculators' },
+          { value: '6', label: t('hero.calc') },
           null,
-          { value: '100%', label: 'Free to Use' },
+          { value: '100%', label: t('hero.free') },
           null,
-          { value: '₹0', label: 'No Hidden Cost' },
+          { value: '₹0', label: t('hero.hidden') },
           null,
-          { value: '∞', label: 'Scenarios' },
+          { value: '∞', label: t('hero.scenarios') },
         ].map((s, i) =>
           s === null
             ? <div key={i} className="hero-divider" />
@@ -101,6 +125,7 @@ function Hero() {
 
 /* ─── Tab Strip ──────────────────────────────────────────────── */
 function CalcTabStrip({ active, onChange }) {
+  const { t } = useTranslation();
   return (
     <div className="calc-tabs-wrapper" id="tools">
       {TABS.map(tab => (
@@ -110,7 +135,7 @@ function CalcTabStrip({ active, onChange }) {
           onClick={() => onChange(tab.id)}
         >
           <span>{tab.icon}</span>
-          <span>{tab.label}</span>
+          <span>{t(`tabs.${tab.labelKey}`)}</span>
         </button>
       ))}
     </div>
@@ -119,46 +144,33 @@ function CalcTabStrip({ active, onChange }) {
 
 /* ─── Active header ──────────────────────────────────────────── */
 function ActiveTabHeader({ tab }) {
+  const { t } = useTranslation();
   return (
     <div className="active-tab-header">
       <h2>
         <span>{tab.icon}</span>
-        {tab.label} Calculator
+        {t(`tabs.${tab.labelKey}`)} {t('common.calculator')}
       </h2>
-      <p>{tab.desc}</p>
+      <p>{t(`tabs.${tab.descKey}`)}</p>
     </div>
   );
 }
 
 /* ─── FAQ ────────────────────────────────────────────────────── */
 const FAQS = [
-  {
-    q: 'What is SIP?',
-    a: 'A Systematic Investment Plan (SIP) lets you invest a fixed amount in a mutual fund every month. It benefits from rupee cost averaging and the power of compounding.'
-  },
-  {
-    q: 'SIP vs Lump Sum — which is better?',
-    a: 'SIP spreads your investment over time, reducing market-timing risk. Lump sum invests all at once — it can yield higher returns if timed well but carries more risk.'
-  },
-  {
-    q: 'What is SWP?',
-    a: 'A Systematic Withdrawal Plan lets you withdraw a fixed amount periodically from your mutual fund corpus — ideal for generating regular retirement income.'
-  },
-  {
-    q: 'What is CAGR?',
-    a: 'Compounded Annual Growth Rate is the rate at which an investment must grow each year to reach its end value from its start. It smooths out volatility for apples-to-apples comparison.'
-  },
-  {
-    q: 'Are these calculations accurate?',
-    a: 'These projections use assumed constant return rates for illustration. Actual mutual fund returns vary. Always consult a SEBI-registered financial advisor before investing.'
-  },
+  { q: 'What is SIP?', a: 'A Systematic Investment Plan (SIP) lets you invest a fixed amount in a mutual fund every month. It benefits from rupee cost averaging and the power of compounding.' },
+  { q: 'SIP vs Lump Sum — which is better?', a: 'SIP spreads your investment over time, reducing market-timing risk. Lump sum invests all at once — it can yield higher returns if timed well but carries more risk.' },
+  { q: 'What is SWP?', a: 'A Systematic Withdrawal Plan lets you withdraw a fixed amount periodically from your mutual fund corpus — ideal for generating regular retirement income.' },
+  { q: 'What is CAGR?', a: 'Compounded Annual Growth Rate is the rate at which an investment must grow each year to reach its end value from its start. It smooths out volatility for apples-to-apples comparison.' },
+  { q: 'Are these calculations accurate?', a: 'These projections use assumed constant return rates for illustration. Actual mutual fund returns vary. Always consult a SEBI-registered financial advisor before investing.' },
 ];
 
 function FAQ() {
   const [open, setOpen] = useState(null);
+  const { t } = useTranslation();
   return (
     <section id="faq" style={{ padding: '3rem 0 1rem', maxWidth: 740, margin: '0 auto' }}>
-      <div className="section-title">Frequently Asked Questions</div>
+      <div className="section-title">{t('app.faq')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
         {FAQS.map((faq, i) => (
           <div key={i} className="faq-item" onClick={() => setOpen(open === i ? null : i)}>
@@ -189,9 +201,10 @@ function FAQ() {
 
 /* ─── Footer ─────────────────────────────────────────────────── */
 function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="footer">
-      <div><strong>SmartMF Calculators</strong> — Built for investors, by design</div>
+      <div><strong>{t('app.title')} {t('common.calculator')}</strong> — Built for investors, by design</div>
       <div className="footer-divider">────────────────────────────────────</div>
       <div>
         ⚠️ <em>For educational purposes only. Not financial advice.</em>
@@ -237,7 +250,11 @@ export default function App() {
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           >
-            {Comp && <Comp />}
+            {Comp && (
+              <Suspense fallback={<div style={{ padding: '2rem', textAlign: 'center', opacity: 0.5 }}>Loading calculator...</div>}>
+                <Comp />
+              </Suspense>
+            )}
           </motion.div>
         </AnimatePresence>
 
